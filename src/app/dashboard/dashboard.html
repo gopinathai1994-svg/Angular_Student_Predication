@@ -1,0 +1,169 @@
+<div class="app-layout">
+  
+  <!-- Header Bar -->
+  <header class="navbar-header">
+    <div class="brand">
+      <div class="brand-logo">🎓</div>
+      <div class="brand-info">
+        <h1>Academia <span class="gradient-text">Intelligence</span></h1>
+        <p>Student Analytics & Enterprise Monitoring System</p>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <!-- Import Button -->
+      <button class="btn btn-outline" (click)="fileInput.click()">
+        <mat-icon>cloud_upload</mat-icon>
+        <span>Import CSV</span>
+      </button>
+      <input #fileInput type="file" (change)="onFileUpload($event)" accept=".csv" style="display: none;" />
+
+      <!-- Add Student Button -->
+      <button class="btn btn-filled" (click)="openDialog('add')">
+        <mat-icon>add</mat-icon>
+        <span>Add Student</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Statistics Overview Grid -->
+  <section class="stats-container">
+    <div class="stat-card" (click)="openChart('enrollment')">
+      <div class="icon-wrapper icon-blue">
+        <mat-icon>groups</mat-icon>
+      </div>
+      <div>
+        <span class="stat-label">Total Enrollment</span>
+        <h2 class="stat-value">{{ dataSource.data.length }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card"  (click)="openChart('attendance')">
+      <div class="icon-wrapper icon-green">
+        <mat-icon>verified</mat-icon>
+      </div>
+      <div>
+        <span class="stat-label">Avg Attendance</span>
+        <h2 class="stat-value">{{ avgAttendance }}</h2>
+      </div>
+    </div>
+
+    <div class="stat-card"  (click)="openChart('marks')">
+      <div class="icon-wrapper icon-purple">
+        <mat-icon>analytics</mat-icon>
+      </div>
+      <div>
+        <span class="stat-label">Overall Mark Avg</span>
+        <h2 class="stat-value">{{ overallMarkAvg }} <small>/ 100</small></h2>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Directory Section -->
+  <main class="table-card">
+    
+    <div class="table-header">
+      <h3 class="section-title">Academic Records Directory</h3>
+
+      <!-- Premium Search Input -->
+      <div class="search-field">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" (keyup)="applyFilter($event)" placeholder="Search..." />
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-responsive">
+      <table mat-table [dataSource]="dataSource" matSort>
+
+        <!-- Roll No -->
+        <ng-container matColumnDef="Roll_No">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ROLL NO </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="badge-roll">{{ element.Roll_No }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Student Name & Email -->
+        <ng-container matColumnDef="Name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> STUDENT DETAILS </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="user-info">
+              <span class="name-text">{{ element.Name }}</span>
+              <span class="email-text">{{ element.Parent_Email }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Section -->
+        <ng-container matColumnDef="Section">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> SECTION </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="section-badge">Sec {{ element.Section }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Attendance Progress -->
+        <ng-container matColumnDef="Attendance">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ATTENDANCE </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="attendance-progress">
+              <div class="track">
+                <div class="fill" [style.width.%]="element.Attendance"></div>
+              </div>
+              <span class="percentage-label">{{ element.Attendance }}%</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Performance Score -->
+        <ng-container matColumnDef="Monthly_Mark">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> MARKS </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="mark-bold">{{ element.Monthly_Mark }}</span> <span class="mark-sub">/100</span>
+          </td>
+        </ng-container>
+
+        <!-- AI Status Badge -->
+        <ng-container matColumnDef="Performance">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> AI RATING </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="status-pill" [ngClass]="{
+              'pill-risk': element.Performance === 'Risk',
+              'pill-medium': element.Performance === 'Medium',
+              'pill-good': element.Performance === 'Good'
+            }">
+              <span class="status-dot"></span>
+              {{ element.Performance || 'Analyzing' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Action Buttons -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-right"> ACTIONS </th>
+          <td mat-cell *matCellDef="let element" class="text-right">
+            <div class="btn-group">
+              <button class="btn-icon icon-view" (click)="openDialog('view', element)" title="View Profile">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button class="btn-icon icon-edit" (click)="openDialog('edit', element)" title="Edit Record">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button class="btn-icon icon-delete" (click)="deleteStudent(element._id)" title="Delete Record">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator [pageSizeOptions]="[5, 25, 50]" showFirstLastButtons class="light-paginator"></mat-paginator>
+    </div>
+
+  </main>
+</div>
