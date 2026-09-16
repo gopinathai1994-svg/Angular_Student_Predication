@@ -24,6 +24,7 @@ import { LoadingService } from '../loading/loading.service';
       background: rgba(10, 15, 30, 0.85); backdrop-filter: blur(12px);
       display: flex; justify-content: center; align-items: center; z-index: 99999;
       animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 2147483649 !important; /* Ensure it overlays everything */
     }
     .loading-card {
       background: linear-gradient(145deg, #182232, #0f172a);
@@ -31,6 +32,7 @@ import { LoadingService } from '../loading/loading.service';
       padding: 36px 48px; border-radius: 24px;
       box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), 0 0 30px rgba(99, 102, 241, 0.15);
       display: flex; flex-direction: column; align-items: center; gap: 20px;
+       z-index: 2147483669 !important; /* Ensure it overlays everything */
     }
 
     /* Quantum Orbit Animation */
