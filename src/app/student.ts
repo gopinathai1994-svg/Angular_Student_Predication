@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class StudentService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/students';
+  private apiUrl ='https://nestjs-student-predication.onrender.com/students' //'http://localhost:3000/students';
 
   // 1. Get All Records
   getStudents(): Observable<any[]> {
